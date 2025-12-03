@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "title": "Groceries",
+    "categoryId": 1,
+    "amount":200,
+    "date": "2025-01-10",
+      "note":"00000oooo",
+    "createdAt": "2024-01-04T10:32:00"
+  },
+  {
+    "id": 2,
+    "title": "Taxi",
+    "categoryId": 2,
+    "amount":200,
+    "date": "2025-01-10",
+    "note":"00000oooo",
+    "createdAt": "2024-01-15T08:45:00"
+  },
+   {
+    "id": 3,
+    "title": "Car",
+    "categoryId": 2,
+    "amount":200,
+    "date": "2025-01-10",
+    "note":"00000oooo",
+    "createdAt": "2024-01-15T08:45:00"
+  }
+]
+
