@@ -1,10 +1,10 @@
 import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Routes, provideRouter } from '@angular/router';
-import { ExpenseListComponent } from './app/expense-list/expense-list.component';
+import { HomeComponent } from './app/home/home.component';
 
 const routes: Routes = [];
 
-bootstrapApplication(ExpenseListComponent, {
+bootstrapApplication(HomeComponent, {
 providers: [provideAnimationsAsync(), provideRouter(routes),provideRouter(routes), provideClientHydration()],
 }).catch((err) => console.error(err));

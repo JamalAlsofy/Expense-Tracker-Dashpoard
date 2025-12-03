@@ -1,19 +1,24 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { Dashboard } from './dashboard/dashboard';
 
 const routes: Routes = [
 
 
-{
-        path: 'home',
-        // ↓ HomeComponent is now lazy loaded
-        loadComponent: () => import('./home/home.component').then(m => m.HomeComponent),
+      {
+        path: 'expense-list',
+    
+        loadComponent: () => import('./expense-list/expense-list.component').then(m => m.ExpenseListComponent),
       },
   {
-    path:'dashboard',
-    loadChildren: ()=>import('./pages/dashboard/dashboard.module').then(m=>m.DashboardModule),
+        path: '',
+        loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
   },
+   {
+        path: 'dashboard',
+        loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
+      },
  
 ];
 

@@ -38,12 +38,12 @@ export class ExpenseListComponent implements OnInit {
   page = 0; 
   pageSize = 8;
   pageSizeOptions = [
-    { label: '8 / page', value: 10 },
-    { label: '12 / page', value: 12 },
-    { label: '20 / page', value: 20 },
-    { label: '50 / page', value: 50 },
-    { label: '80 / page', value: 80 },
-    { label: '100 / page', value: 100 }
+    { label: '8', value: 10 },
+    { label: '12', value: 12 },
+    { label: '20', value: 20 },
+    { label: '50', value: 50 },
+    { label: '80', value: 80 },
+    { label: '100', value: 100 }
   ];
 
   

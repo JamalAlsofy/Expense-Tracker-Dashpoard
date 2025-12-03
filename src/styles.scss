@@ -1,3 +1,6 @@
+/* You can add global styles to this file, and also use other style files */
+@use './assets/styles.scss';
+
 html {
     font-size: 14px;
 }
@@ -18,4 +21,5 @@ body {
     border-radius: 10px;
     margin-bottom: 1rem;
 }
+
     

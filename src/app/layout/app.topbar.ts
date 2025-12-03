@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from './app.configurator';
+
 import { LayoutService } from '@service/layout.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -54,7 +54,7 @@ import { LayoutService } from '@service/layout.service';
                     >
                         <i class="pi pi-palette"></i>
                     </button>
-                    <app-configurator />
+              
                 </div>
             </div>
 
@@ -81,10 +81,26 @@ import { LayoutService } from '@service/layout.service';
         </div>
     </div>`
 })
-export class AppTopbar {
+export class AppTopbar implements OnInit {
     items!: MenuItem[];
+    model: MenuItem[] = [];
 
     constructor(public layoutService: LayoutService) {}
+    ngOnInit(): void {
+              this.model = [
+            {
+                label: 'Home',
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+            },
+            {
+                label: 'UI Components',
+                items: [
+                    { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
+                ]
+            },
+          
+        ];
+    }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
