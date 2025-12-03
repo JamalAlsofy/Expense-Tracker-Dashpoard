@@ -9,11 +9,12 @@ import { AddEditExpenseComponent } from './add-edit-expense/add-edit-expense.com
 import { DialogService } from 'primeng/dynamicdialog';
 import { ImportsModule } from '../imports';
 import { Table, TableService } from 'primeng/table';
+import { TopbarComponent } from '../topbar/topbar.component';
 
 @Component({
   selector: 'app-expense-list',
   standalone: true,
-  imports: [ImportsModule],
+  imports: [ImportsModule,TopbarComponent],
   providers: [MessageService, TableService,Table,ConfirmationService, expenseService, commonService, DialogService],
   templateUrl: './expense-list.component.html',
   styleUrls: ['./expense-list.component.scss']

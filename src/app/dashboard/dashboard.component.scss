@@ -1,0 +1,15 @@
+.stat-box {
+    @apply bg-white dark:bg-gray-800 shadow rounded-lg p-4 text-center;
+
+    h3 {
+        @apply text-gray-500 dark:text-gray-300 text-sm;
+    }
+
+    p {
+        @apply text-2xl font-bold;
+    }
+}
+
+.card {
+    @apply bg-white dark:bg-gray-800 shadow rounded-lg p-4;
+}

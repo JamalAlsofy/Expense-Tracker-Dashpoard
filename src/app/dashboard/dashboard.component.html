@@ -1,1 +1,58 @@
-<p>dashboard works!</p>
+
+<div class="p-6 grid gap-6">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <div class="stat-box">
+            <h3>Total Expenses</h3>
+            <p>{{ totalExpenses() | number:'1.2-2' }} $</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>Current Month</h3>
+            <p>{{ currentMonthExpenses() | number:'1.2-2' }} $</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>Transactions</h3>
+            <p>{{ totalTransactions() }}</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>Average Expense</h3>
+            <p>{{ avgExpenses() | number:'1.2-2' }} $</p>
+        </div>
+
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+            <h3 class="mb-3 font-semibold">Category Distribution</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3 class="mb-3 font-semibold">Monthly Spending</h3>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Latest 5 -->
+    <div class="card mt-6">
+        <h3 class="font-semibold mb-4">Latest 5 Expenses</h3>
+
+        <ul class="divide-y">
+            <li *ngFor="let e of latestFive()" class="py-2 flex justify-between">
+                <div>
+                    <p class="font-medium">{{ e.title }}</p>
+                    <p class="text-sm text-gray-500">{{ e.date }}</p>
+                </div>
+                <p class="font-semibold">{{ e.amount }} $</p>
+            </li>
+        </ul>
+    </div>
+
+</div>
+

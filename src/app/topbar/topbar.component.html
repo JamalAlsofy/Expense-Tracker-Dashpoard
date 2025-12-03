@@ -1,0 +1,30 @@
+<!-- Logo -->
+ <header class="topbar">
+<div class="left-section">
+    <img src="assets/logo.png" class="logo" alt="Logo" />
+</div>
+
+
+<!-- Center Navigation -->
+<nav class="navigation">
+    <button class="nav-btn" routerLink="dashboard">Dashboard</button>
+    <button class="nav-btn" routerLink="expense-list">Expenses List</button>
+</nav>
+
+
+<!-- Right Side Controls -->
+<div class="actions">
+    <button class="icon-btn" (click)="toggleTheme()">
+        <span *ngIf="!isDark()">🌞</span>
+        <span *ngIf="isDark()">🌙</span>
+    </button>
+
+
+    <button class="icon-btn" (click)="changeLang()">
+        {{ currentLang()  }}
+    </button>
+
+
+    <button class="login-btn">Login</button>
+</div>
+</header>
