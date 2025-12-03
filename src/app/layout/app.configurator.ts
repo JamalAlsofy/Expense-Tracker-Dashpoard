@@ -8,6 +8,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { LayoutService } from '@service/layout.service';
 import { PrimeNG } from 'primeng';
 
+
 const presets = {
     Aura,
     Lara,
@@ -104,7 +105,7 @@ export class AppConfigurator {
 
     primeng = inject(PrimeNG);
 
-    presets = Object.keys(presets);
+    presets:any[] = Object.keys(presets);
 
     showMenuModeButton = signal(!this.router.url.includes('auth'));
 
