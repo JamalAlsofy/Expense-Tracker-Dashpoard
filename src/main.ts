@@ -1,11 +1,14 @@
-import { ExpenseListComponent } from './app/expense-list/expense-list.component';
-import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { Routes, provideRouter } from '@angular/router';
+
+import { enableProdMode } from '@angular/core';
+import { AppModule } from './app/app.module';
+import { environment } from './environments/environment.prod';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 
-const routes: Routes = [];
 
-bootstrapApplication(ExpenseListComponent, {
-providers: [provideAnimationsAsync(), provideRouter(routes),provideRouter(routes), provideClientHydration()],
-}).catch((err) => console.error(err));
+if (environment.production) {
+  enableProdMode();
+}
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch(err => console.error(err));

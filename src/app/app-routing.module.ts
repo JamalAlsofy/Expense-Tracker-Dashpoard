@@ -5,16 +5,11 @@ import { Dashboard } from './dashboard/dashboard';
 
 const routes: Routes = [
 
-
       {
         path: 'expense-list',
     
         loadComponent: () => import('./expense-list/expense-list.component').then(m => m.ExpenseListComponent),
       },
-  {
-        path: '',
-        loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
-  },
    {
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),

@@ -1,63 +1,82 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Expenses } from '@domain/models/expense';
-import { loadFromStorage, saveToStorage, STORAGE_KEYS } from '../domain/localstorage/storge.util';
 import { HttpClient } from '@angular/common/http';
-import { v4 as uuidv4 } from 'uuid';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { Expense } from '@domain/models/expense';
+import { ExpensesState } from '../app/store/expense.reducer';
+import { loadFromStorage, saveToStorage, STORAGE_KEYS } from '@domain/localstorage/storge.util';
+
 
 @Injectable({ providedIn: 'root' })
-export class expenseService {
-  private expenses$ = new BehaviorSubject<Expenses[]>([]);
-  expenses = this.expenses$.asObservable();
+export class ExpenseService {
+  //private expenses$ = new BehaviorSubject<Expense[]>([]);
+  //expenses = this.expenses$.asObservable();
 
+
+  constructor(private http: HttpClient, private store: Store<ExpensesState>) { }
   
-  constructor(private http: HttpClient) {
-    this.loadInitial();
-  }
-  private loadInitial() {
-    const fromStorage = loadFromStorage<Expenses[]>(STORAGE_KEYS.EXPENSE);
-    if (fromStorage && fromStorage.length) {
-      this.expenses$.next(fromStorage);
-    } else {
-      this.http.get<Expenses[]>('../assets/mock/expense.json').subscribe(data => {
-        this.expenses$.next(data);
-        saveToStorage(STORAGE_KEYS.EXPENSE, data);
-      });
+  //  loadInitial() {
+  //   const fromStorage = loadFromStorage<Expense[]>(STORAGE_KEYS.EXPENSE);
+  //   if (fromStorage && fromStorage.length) {
+  //     this.expenses$.next(fromStorage);
+  //   } else {
+  //     this.http.get<Expense[]>('../assets/mock/expense.json').subscribe(data => {
+  //       this.expenses$.next(data);
+  //       saveToStorage(STORAGE_KEYS.EXPENSE, data);
+  //     });
+  //   }
+  // }
+
+  loadExpenses(): Observable<Expense[]> {
+
+    const raw = localStorage.getItem(STORAGE_KEYS.EXPENSE);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Expense[];
+        return of(parsed);
+      } catch (e) {
+        console.error('Failed to parse Expenses from localStorage', e);
+      }
     }
+
+
+return this.http.get<Expense[]>('../assets/mock/expense.json').pipe(
+      tap(Expenses => {
+        localStorage.setItem(STORAGE_KEYS.EXPENSE, JSON.stringify(Expenses));
+      })
+    );
   }
-  getAll(): Observable<Expenses[]> {
-    return this.expenses$.asObservable();
+
+
+  getExpensesFromLocalStorage(): Expense[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.EXPENSE);
+    if (!raw) return [];
+    try { return JSON.parse(raw) as Expense[]; } catch { return []; }
   }
-  getSnapshot(): Expenses[] {
-    return this.expenses$.getValue();
+
+
+  saveExpensesToLocalStorage() {
+       this.store.select(state => (state as any).Expenses?.Expenses).subscribe(Expenses => {
+      if (Expenses) {
+        localStorage.setItem(STORAGE_KEYS.EXPENSE, JSON.stringify(Expenses));
+      }
+    }).unsubscribe();
   }
-  findById(id: number): Expenses | undefined {
-    return this.getSnapshot().find(e => e.id === id);
+
+
+  getUIFromLocalStorage(): any {
+    const raw = localStorage.getItem(STORAGE_KEYS.UI_STATE);
+    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
   }
- 
-  add(expensePartial: Omit<Expenses, 'id' | 'createdAt'>) {
-    const newEmp: Expenses = {
-      ...expensePartial,
-      id: uuidv4(),
-      createdAt: new Date().toISOString()
-    };
-    const next = [newEmp, ...this.getSnapshot()];
-    this.expenses$.next(next);
-    saveToStorage(STORAGE_KEYS.EXPENSE, next);
-    return newEmp;
+
+
+   saveUIState(state: any) {
+    saveToStorage(STORAGE_KEYS.UI_STATE, state);
   }
-  update(id: number, changes: Partial<Expenses>) {
-    const arr = this.getSnapshot().map(e => e.id === id ? { ...e, ...changes } : e);
-    this.expenses$.next(arr);
-    saveToStorage(STORAGE_KEYS.EXPENSE, arr);
-  }
-  remove(id: number) {
-    const arr = this.getSnapshot().filter(e => e.id !== id);
-    this.expenses$.next(arr);
-    saveToStorage(STORAGE_KEYS.EXPENSE, arr);
-  }
-  
 }
-/***
- * 
- */
+
+
+
+
+

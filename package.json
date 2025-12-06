@@ -12,6 +12,7 @@
   "dependencies": {
     "@angular-devkit/build-angular": "^18.0.2",
     "@angular/animations": "^18.0.1",
+
     "@angular/cdk": "^18.0.1",
     "@angular/cli": "^18.0.2",
     "@angular/common": "^18.0.1",
@@ -23,6 +24,11 @@
     "@angular/platform-browser-dynamic": "^18.0.1",
     "@angular/platform-server": "^18.0.1",
     "@angular/router": "^18.0.1",
+    "@ngrx/effects": "^18.1.1",
+    "@ngrx/store": "^18.1.0",
+    "@angular/material": "^18.0.6",
+    "@ngrx/operators": "^18.1.0",
+    "@ngrx/store-devtools": "^18.1.0",
     "@primeuix/themes": "^2.0.1",
     "@tailwindcss/postcss": "^4.1.17",
     "chart.js": "^4.4.2",
@@ -31,6 +37,7 @@
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primeng": "17.18.13",
+
     "quill": "2.0.2",
     "rxjs": "~7.8.1",
     "tailwindcss-primeui": "^0.6.1",

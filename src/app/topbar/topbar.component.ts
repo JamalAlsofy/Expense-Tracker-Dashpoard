@@ -6,8 +6,8 @@ import { RouterModule } from '@angular/router';
 
 @Component({
 selector: 'app-topbar',
-  standalone: true,
-imports:[RouterModule],
+  standalone: false,
+
 templateUrl: './topbar.component.html',
 styleUrls: ['./topbar.component.scss'],
 })

@@ -1,169 +1,357 @@
-<app-topbar></app-topbar>
-<div class="card">
-    <div class="p-toolbar mb-4 gap-2 flex justify-content-between align-items-center">
-        <div class="flex align-items-center gap-2">
-            <button pButton type="button" label="New" icon="pi pi-plus" class="p-button-success"
-                (click)="openForm({})"></button>
-            <button pButton type="button" label="Delet " icon="pi pi-trash" class="p-button-danger"
-                (click)="deleteSelectedexpenses()"
-                [disabled]="!selectedexpenses || selectedexpenses.length===0"></button>
-        </div>
+<!-- expense-list.component.html (محدّث) -->
+<div class="p-4">
 
-        <div class="flex align-items-center gap-2">
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="search... " [formControl]="search" />
-            </span>
+    <p-toolbar class="mb-4">
+        <div class="p-toolbar-group-left flex gap-2 items-center">
+            <button pButton label="Add" icon="pi pi-plus" (click)="openAdd()"></button>
 
-            <p-dropdown [options]="categories" optionLabel="name" optionValue="id" [formControl]="categoryFilter"
-                placeholder="All " styleClass="ml-2"></p-dropdown>
+<p-dropdown [options]="categories" optionLabel="label" optionValue="value" placeholder="All Categories"
+                [(ngModel)]="filterCategory" (onChange)="onFilterChange()"></p-dropdown>
+   <input type="date" [(ngModel)]="filterFrom" (change)="onFilterChange()" class="p-inputtext" />
+  <input type="date" [(ngModel)]="filterTo" (change)="onFilterChange()" class="p-inputtext" />
 
-       
-            <p-calendar placeholder="from" [formControl]="fromDateCtrl" dateFormat="dd/mm/yy"></p-calendar>
-            <p-calendar placeholder="to" [formControl]="toDateCtrl" dateFormat="dd/mm/yy"></p-calendar>
-
-            <button pButton type="button" label=" Clean" icon="pi pi-filter-slash"
+            <button pButton label="Clear" icon="pi pi-filter-slash" class="p-button-outlined"
                 (click)="clearFilters()"></button>
         </div>
-    </div>
 
-    
-    <div class="overflow-auto">
-        <table class="min-w-full text-right">
-            <thead>
-                <tr>
-                    <th style="width:4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-
-                    <th class="cursor-pointer" (click)="changeSort('title')">
-                        Title
-                        <i *ngIf="sortBy.key==='title'" class="pi"
-                            [ngClass]="{'pi-sort-amount-up': sortBy.dir==='asc','pi-sort-amount-down': sortBy.dir==='desc'}"></i>
-                    </th>
-
-                    <th class="cursor-pointer" (click)="changeSort('amount')">
-                        Amount
-                        <i *ngIf="sortBy.key==='amount'" class="pi"
-                            [ngClass]="{'pi-sort-amount-up': sortBy.dir==='asc','pi-sort-amount-down': sortBy.dir==='desc'}"></i>
-                    </th>
-
-                    <th>Category</th>
-
-                    <th class="cursor-pointer" (click)="changeSort('date')">
-                        Date
-                        <i *ngIf="sortBy.key==='date'" class="pi"
-                            [ngClass]="{'pi-sort-amount-up': sortBy.dir==='asc','pi-sort-amount-down': sortBy.dir==='desc'}"></i>
-                    </th>
-
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let expense of displayed">
-                    <td><p-tableCheckbox [value]="expense" [(ngModel)]="selectedexpenses"></p-tableCheckbox></td>
-                    <td>{{ expense.title }}</td>
-                    <td>{{ expense.amount | number:'1.2-2' }}</td>
-                    <td>{{ getCategoryName(expense.categoryId) }}</td>
-                    <td>{{ expense.date | date:'dd/MM/yyyy' }}</td>
-                    <td class="flex gap-2">
-                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
-                            (click)="openForm(expense)"></button>
-                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                            (click)="deleteexpense(expense)"></button>
-                    </td>
-                </tr>
-                <tr *ngIf="displayed.length===0">
-                    <td colspan="6" class="text-center p-4">not Found Result</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-
-    <div class="flex justify-content-between align-items-center mt-3">
-        <div>Total{{ filteredCount }}</div>
-
-    
-        <div class="flex align-items-center gap-2">
-            <button pButton type="button" icon="pi pi-angle-left" (click)="prevPage()" [disabled]="page<=0"></button>
-
-            <ng-container *ngFor="let p of pages">
-                <button pButton type="button" class="p-button-text" [class.p-button-outlined]="p!==page"
-                    (click)="goPage(p)">{{ p + 1 }}</button>
-            </ng-container>
-
-            <button pButton type="button" icon="pi pi-angle-right" (click)="nextPage()"
-                [disabled]="(page+1)>=totalPages"></button>
-
-            <p-dropdown [options]="pageSizeOptions" [(ngModel)]="pageSize" (onChange)="onPageSizeChange($event.value)"
-                styleClass="ml-2" [style]="{width:'6rem'}"></p-dropdown>
+        <div class="p-toolbar-group-right flex items-center gap-2">
+            <label>Rows</label>
+            <p-dropdown
+                [options]="[{label:'5',value:5},{label:'10',value:10},{label:'25',value:25},{label:'50',value:50}]"
+                [(ngModel)]="rowsPerPage" (onChange)="onRowsPerPageChange()"></p-dropdown>
         </div>
-    </div>
-</div>
-
-<!-- <div class="card">
-    <p-toast />
-    <p-toolbar styleClass="mb-4 gap-2">
-        <ng-template pTemplate="left">
-            <p-button severity="success" label="New" icon="pi pi-plus" class="mr-2" (onClick)="openForm({})" />
-        </ng-template>
     </p-toolbar>
-
-    <p-table [value]="displayed" [rows]="pageSize" [paginator]="true" [totalRecords]="expenses.length"
-        (onPage)="goPage($event.page)" [(selection)]="selectedexpenses" dataKey="id" [rowHover]="true"
-        [tableStyle]="{ 'min-width': '75rem' }">
-
-        <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between w-full">
-
-
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" placeholder="Search..." [formControl]="search" />
-                </span>
-
-                <p-dropdown [options]="categories" optionLabel="name" optionValue="id" styleClass="ml-2"
-                    [formControl]="categoryFilter" placeholder="Category">
-                </p-dropdown>
-            </div>
-        </ng-template>
-
+   <p-table [value]="pagedExpenses" responsiveLayout="scroll">
         <ng-template pTemplate="header">
             <tr>
-                <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                <th (click)="toggleSort('title')">Title</th>
+                <th>Category</th>
+                <th (click)="toggleSort('amount')">Amount</th>
+                <th (click)="toggleSort('date')">Date</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
 
-                <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
-                <th pSortableColumn="amount">Amount <p-sortIcon field="amount" /></th>
-                <th pSortableColumn="categoryId">Category <p-sortIcon field="categoryId" /></th>
-                <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
-                <th></th>
+        <ng-template pTemplate="body" let-exp>
+            <tr>
+                <td>{{exp.title}}</td>
+                <td>{{getCategoryName(exp.category)}}</td>
+                <td>{{exp.amount | number:'1.2-2'}}</td>
+                <td>{{exp.date}}</td>
+                <td>{{exp.note || '-'}}</td>
+                <td>
+                    <button pButton icon="pi pi-pencil" class="p-button-text" (click)="openEdit(exp)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-text p-button-danger"
+                        (click)="deleteExpense(exp.id)"></button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="6">
+                    <div class="flex justify-between items-center">
+                        <div>Showing {{filteredTotal}} items</div>
+                        <div class="flex items-center gap-2">
+                            <button pButton icon="pi pi-angle-left" (click)="prevPage()"
+                                [disabled]="page === 0"></button>
+                            <span>Page {{page+1}} / {{totalPages}}</span>
+                            <button pButton icon="pi pi-angle-right" (click)="nextPage()"
+                                [disabled]="page >= totalPages-1"></button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+</div>
+
+
+
+<!-- 
+<div class="p-4">
+    <p-toolbar class="mb-4">
+        <div class="flex flex-wrap gap-2 justify-between w-full">
+            <div class="flex flex-wrap gap-2 items-center">
+                <p-dropdown [options]="categoryOptions" optionLabel="label" optionValue="value"
+                    placeholder="All categories" [(ngModel)]="filterCategory" (onChange)="applyFilters()"></p-dropdown>
+                <p-calendar [(ngModel)]="filterDateRange" selectionMode="range" dateFormat="yy-mm-dd"
+                    placeholder="Date range" (onSelect)="applyFilters()" [showIcon]="true"></p-calendar>
+                <button pButton type="button" label="Clear" icon="pi pi-filter-slash" class="p-button-outlined"
+                    (click)="clearFilters()"></button>
+            </div>
+            <button pButton type="button" label="Add Expense" icon="pi pi-plus" (click)="openAddDialog()"></button>
+        </div>
+    </p-toolbar>
+    <p-table [value]="pagedExpenses" [sortField]="sortField" [sortOrder]="sortOrder" [paginator]="false" 
+        
+        [rows]="rowsPerPage"
+        [responsiveLayout]="'scroll'"
+        class="shadow rounded-lg"
+        >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+                <th>Category</th>
+                <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+                <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+                <th>Note</th>
+                <th class="text-center">Actions</th>
             </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-expense>
             <tr>
-                <td><p-tableCheckbox [value]="expense" /></td>
                 <td>{{ expense.title }}</td>
-
-                <td>{{ expense.amount | number:'1.2-2' }}</td>
-
-                <td>{{ getCategoryName(expense.categoryId) }}</td>
-
-                <td>{{ expense.date |date:'MM/dd/yyyy'}}</td>
-                <td>
-                    <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                        (onClick)="openForm(expense)" />
-
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                        (onClick)="deleteexpense(expense)" />
+                <td>{{ getCategoryLabel(expense.category) }}</td>
+                <td>{{ expense.amount | currency }}</td>
+                <td>{{ expense.date | date: 'yyyy-MM-dd' }}</td>
+                <td>{{ expense.note || '-' }}</td>
+                <td class="text-center">
+                    <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-sm p-button-text"
+                        (click)="openEditDialog(expense)"></button>
+                    <button pButton type="button" icon="pi pi-trash"
+                        class="p-button-rounded p-button-sm p-button-text p-button-danger"
+                        (click)="deleteExpense(expense.id)"></button>
                 </td>
             </tr>
         </ng-template>
+
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="6">
+
+                    <div class="flex justify-end items-center gap-2">
+                        <button pButton type="button" icon="pi pi-angle-left" [disabled]="pageIndex === 0"
+                            (click)="prevPage()"></button>
+                        <span>Page {{ pageIndex + 1 }} / {{ totalPages }}</span>
+                        <button pButton type="button" icon="pi pi-angle-right" [disabled]="pageIndex >= totalPages - 1"
+                            (click)="nextPage()"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+</div> -->
+
+
+<!-- <app-topbar></app-topbar>
+
+<div class="card p-4 md:p-6">
+
+    <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+     
+            <div class="flex flex-wrap items-center gap-2">
+                <button pButton type="button" label="New" icon="pi pi-plus" class="p-button-success"
+                    (click)="openForm({})"></button>
+                <button pButton type="button" label="Delete" icon="pi pi-trash" class="p-button-danger"
+                    (click)="deleteSelectedexpenses()"
+                    [disabled]="!selectedexpenses || selectedexpenses.length === 0"></button>
+            </div>
+
+    
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" placeholder="Search expenses..." [formControl]="search"
+                        class="w-full md:w-auto" />
+                </span>
+
+                <p-dropdown [options]="categories" optionLabel="name" optionValue="id" [formControl]="categoryFilter"
+                    placeholder="All Categories" styleClass="w-full md:w-48"></p-dropdown>
+
+                <div class="flex items-center gap-2">
+                    <p-calendar placeholder="From" [formControl]="fromDateCtrl" dateFormat="dd/mm/yy"
+                        styleClass="w-full md:w-auto" [showIcon]="true" icon="pi pi-calendar"></p-calendar>
+                    <span class="text-gray-500">-</span>
+                    <p-calendar placeholder="To" [formControl]="toDateCtrl" dateFormat="dd/mm/yy"
+                        styleClass="w-full md:w-auto" [showIcon]="true" icon="pi pi-calendar"></p-calendar>
+                </div>
+
+                <button pButton type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-text"
+                    (click)="clearFilters()"></button>
+            </div>
+        </div>
+    </div>
+
+    <p-table [value]="displayed" [paginator]="true" [rows]="pageSize" [totalRecords]="filteredCount"
+        [rowsPerPageOptions]="[8, 12, 20, 50]" [selection]="selectedexpenses" [(selection)]="selectedexpenses"
+        dataKey="id" [rowHover]="true" [loading]="expenses.length === 0" responsiveLayout="stack"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+        styleClass="p-datatable-striped p-datatable-gridlines">
+
+        <ng-template pTemplate="caption">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+                <div class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                    Expenses Management
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Total: {{ filteredCount }} expenses • Page {{ page + 1 }} of {{ totalPages }}
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem" class="text-center">
+                    <p-tableHeaderCheckbox />
+                </th>
+                <th pSortableColumn="title" style="min-width: 200px">
+                    <div class="flex items-center justify-between">
+                        <span>Title</span>
+                        <p-sortIcon field="title" />
+                    </div>
+                </th>
+                <th pSortableColumn="amount" style="min-width: 120px" class="text-right">
+                    <div class="flex items-center justify-between">
+                        <span>Amount</span>
+                        <p-sortIcon field="amount" />
+                    </div>
+                </th>
+                <th pSortableColumn="categoryId" style="min-width: 150px">
+                    <div class="flex items-center justify-between">
+                        <span>Category</span>
+                        <p-sortIcon field="categoryId" />
+                    </div>
+                </th>
+                <th pSortableColumn="date" style="min-width: 150px">
+                    <div class="flex items-center justify-between">
+                        <span>Date</span>
+                        <p-sortIcon field="date" />
+                    </div>
+                </th>
+                <th style="width: 120px" class="text-center">Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-expense let-rowIndex="rowIndex">
+            <tr [class.bg-blue-50]="selectedexpenses?.some(e => e.id === expense.id)"
+                class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150">
+                <td class="text-center">
+                    <p-tableCheckbox [value]="expense" />
+                </td>
+                <td>
+                    <div class="font-medium text-gray-900 dark:text-gray-100">{{ expense.title }}</div>
+                </td>
+                <td class="text-right">
+                    <span class="font-semibold text-gray-900 dark:text-white">
+                        {{ expense.amount | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                </td>
+                <td>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" [ngClass]="{
+                            'bg-blue-100 text-blue-800': expense.categoryId === 1,
+                            'bg-green-100 text-green-800': expense.categoryId === 2,
+                            'bg-gray-100 text-gray-800': !expense.categoryId
+                          }">
+                        {{ getCategoryName(expense.categoryId) }}
+                    </span>
+                </td>
+                <td>
+                    <div class="flex items-center">
+                        <i class="pi pi-calendar mr-2 text-gray-400"></i>
+                        <span class="text-gray-700 dark:text-gray-300">
+                            {{ expense.date | date:'mediumDate' }}
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex justify-center gap-2">
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
+                            pTooltip="Edit" tooltipPosition="top" (click)="openForm(expense)"></button>
+                        <button pButton icon="pi pi-trash"
+                            class="p-button-rounded p-button-text p-button-danger p-button-sm" pTooltip="Delete"
+                            tooltipPosition="top" (click)="deleteexpense(expense)"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6" class="text-center py-8">
+                    <div class="flex flex-col items-center justify-center text-gray-500">
+                        <i class="pi pi-inbox text-4xl mb-4"></i>
+                        <p class="text-lg font-medium mb-2">No expenses found</p>
+                        <p class="text-sm">Try adjusting your filters or add a new expense</p>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+            <tr *ngFor="let i of [0,1,2,3]">
+                <td colspan="6" class="text-center py-4">
+                    <p-skeleton width="100%" height="20px"></p-skeleton>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="paginatorleft">
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium">Rows per page:</span>
+                <p-dropdown [options]="pageSizeOptions" optionLabel="label" optionValue="value" [(ngModel)]="pageSize"
+                    (onChange)="onPageSizeChange($event.value)" styleClass="w-20" [showClear]="false"></p-dropdown>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="paginatortemplate" let-state>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Showing {{ state.first }} to {{ state.last }} of {{ state.totalRecords }} entries
+                </div>
+                <div class="flex items-center gap-2">
+                    <button pButton type="button" icon="pi pi-angle-double-left" class="p-button-text p-button-sm"
+                        [disabled]="state.first === 0" (click)="goPage(0)"></button>
+                    <button pButton type="button" icon="pi pi-angle-left" class="p-button-text p-button-sm"
+                        [disabled]="state.first === 0" (click)="prevPage()"></button>
+
+                    <div class="flex items-center gap-1">
+                        <ng-container *ngFor="let p of pages">
+                            <button pButton type="button" class="p-button-text p-button-sm min-w-[40px]"
+                                [class.p-button-outlined]="p === page" (click)="goPage(p)">
+                                {{ p + 1 }}
+                            </button>
+                        </ng-container>
+                    </div>
+
+                    <button pButton type="button" icon="pi pi-angle-right" class="p-button-text p-button-sm"
+                        [disabled]="(page + 1) >= totalPages" (click)="nextPage()"></button>
+                    <button pButton type="button" icon="pi pi-angle-double-right" class="p-button-text p-button-sm"
+                        [disabled]="(page + 1) >= totalPages" (click)="goPage(totalPages - 1)"></button>
+                </div>
+            </div>
+        </ng-template>
+
         <ng-template pTemplate="summary">
-            <div class="flex align-items-center justify-content-between">
-                Total: {{ expenses.length }} expenses.
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-t">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Selected: {{ selectedexpenses?.length || 0 }} of {{ filteredCount }} expenses
+                </div>
+                <div class="text-sm">
+                    <span class="font-semibold text-gray-700 dark:text-gray-300">
+                        Total Amount: {{ getSelectedTotal() | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                </div>
             </div>
         </ng-template>
     </p-table>
-    <p-confirmDialog [style]="{ width: '450px' }" />
-</div> -->
+</div>
+
+
+<p-confirmDialog [style]="{width: '500px'}" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [baseZIndex]="10000">
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-exclamation-triangle text-yellow-500"></i>
+            <span class="font-bold text-lg">Confirmation</span>
+        </div>
+    </ng-template>
+</p-confirmDialog>
+
+<p-toast position="top-right" [breakpoints]="{'640px': {width: '100%', right: '0', left: '0'}}"></p-toast> -->
