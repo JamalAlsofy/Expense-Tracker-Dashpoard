@@ -1,25 +1,14 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import { ExpensesReducer, ExpensesState } from './expense.reducer';
- 
-/**********
- * 
- export const selectAllExpenses = createSelector(
-  selectExpensesState,
-  (state) => state?.expenses ?? [] // بحالة عدم التهيئة نرجع مصفوفة فارغة
-);
+import { ExpensesState } from './expense.reducer';
 
- */
+ 
+
 
 export const selectExpensesFeature = createFeatureSelector<ExpensesState>('Expenses');
 
 export const selectLoading = createSelector(selectExpensesFeature, s => s.loading);
 export const selectUI = createSelector(selectExpensesFeature, s => s.ui);
 
-// export const selectUI = createSelector(
-//   selectExpensesState,
-//   (state) => state?.ui ?? { page: 0, pageSize: 10, filterCategory: null, filterFrom: null, filterTo: null, sortField: 'date', sortDirection: 'desc' }
-// );
-///+++++++++++++++++++++++++++++++++
 
 
 export const selectExpensesState =
@@ -77,5 +66,3 @@ export const selectVisibleExpenses = createSelector(
         return { total, items: paged };
     }
 );
-
-

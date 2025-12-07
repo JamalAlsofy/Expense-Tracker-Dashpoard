@@ -1,34 +1,52 @@
-import { ExpenseService } from '@service/expenseservice';
 
 
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectAllExpenses } from '../store/expense.selectors';
-import { deleteExpense } from '../store/expense.actions';
+import { deleteExpense, loadExpensesSuccess } from './expense.actions';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AddEditExpenseComponent } from './add-edit-expense/add-edit-expense.component';
 import { commonService } from '@service/commonservice';
 import { ImportsModule } from '../imports';
-import { initialState } from '../store/expense.reducer';
+import { STORAGE_KEYS } from '@domain/localstorage/storge.util';
+import { loadFromStorage } from '../../domain/localstorage/storge.util';
+import { ExpenseService } from './expense-data.service';
+import { Expense } from '@domain/models/expense';
 
 @Component({
   selector: 'app-expense-list',
   templateUrl: './expense-list.component.html',
   standalone: true,
-  imports:[ImportsModule],
-  providers: [DialogService,ExpenseService,commonService]
+  imports: [ImportsModule],
+  providers: [DialogService, ExpenseService, commonService]
 })
 export class ExpenseListComponent implements OnInit, OnDestroy {
+  
+  private store: Store = inject(Store);
+
+  expenses$ = this.store.select(selectAllExpenses);
+  
 
   allExpenses: any[] = [];
   pagedExpenses: any[] = [];
   filteredTotal = 0;
-  categories = [{label:'All', value: null}, {label:'Food',value:1},{label:'Transport',value:2},{label:'Utilities',value:3},{label:'Health',value:4},{label:'Entertainment',value:5}];
+
+  categories = [
+    { label: 'All', value: null },
+    { label: 'Food', value: 1 },
+    { label: 'Transport', value: 2 },
+    { label: 'Utilities', value: 3 },
+    { label: 'Health', value: 4 },
+    { label: 'Entertainment', value: 5 }
+  ];
+
   filterCategory: number | null = null;
-  filterFrom: string | null = null; 
+  filterFrom: string | null = null;
   filterTo: string | null = null;
- page = 0;
+
+  page = 0;
   rowsPerPage = 10;
   totalPages = 1;
   sortField: string | null = 'date';
@@ -36,12 +54,23 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
 
   private sub = new Subscription();
   private dialogRef?: DynamicDialogRef;
-
-  constructor(private store: Store, private dialog: DialogService, private expensesService: ExpenseService) {}
+   constructor(
+    private dialog: DialogService,
+    private expensesService: ExpenseService
+  ) {}
 
   ngOnInit(): void {
-    this.expensesService.getExpensesFromLocalStorage();
-     const ui = this.expensesService.getUIFromLocalStorage();
+    const raw = localStorage.getItem('EXPENSES');
+
+    if (raw) {
+     //this.store.dispatch(loadFromStorage<Expense>({}))
+    } else {
+      this.expensesService.loadMock().subscribe(data => {
+        this.store.dispatch(loadExpensesSuccess({ expense: data }));
+      });
+    }
+
+    const ui = this.expensesService.getUIFromLocalStorage();
     if (ui) {
       this.page = ui.page ?? 0;
       this.rowsPerPage = ui.pageSize ?? 10;
@@ -53,7 +82,7 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
     }
 
     this.sub.add(
-      this.store.select(selectAllExpenses).subscribe(arr => {
+      this.expenses$.subscribe(arr => {
         this.allExpenses = arr || [];
         this.applyFiltersAndPaging();
       })
@@ -64,15 +93,17 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
     this.sub.unsubscribe();
     if (this.dialogRef) this.dialogRef.close();
   }
+
   getCategoryName(id: number) {
     const it = this.categories.find(c => c.value === id);
     return it ? it.label : 'Unknown';
   }
 
- applyFiltersAndPaging() {
+  applyFiltersAndPaging() {
     let items = [...this.allExpenses];
-    if (this.filterCategory !== null && this.filterCategory !== undefined) {
-      items = items.filter(i => i.category === this.filterCategory);
+
+    if (this.filterCategory !== null) {
+      items = items.filter(i => i.categoryId === this.filterCategory);
     }
 
     if (this.filterFrom) {
@@ -81,25 +112,30 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
     if (this.filterTo) {
       items = items.filter(i => i.date <= this.filterTo);
     }
-   if (this.sortField) {
-      items.sort((a,b) => {
+
+    if (this.sortField) {
+      items.sort((a, b) => {
         let av = a[this.sortField!];
         let bv = b[this.sortField!];
-        if (this.sortField === 'date') {
+
+        if (this.sortField === 'date' || this.sortField === 'createdAt') {
           av = new Date(av).getTime();
           bv = new Date(bv).getTime();
         }
-        if (av == null) return -1;
-        if (bv == null) return 1;
-        return (av > bv ? 1 : av < bv ? -1 : 0) * (this.sortDir === 'asc' ? 1 : -1);
+
+        return (av > bv ? 1 : av < bv ? -1 : 0) *
+               (this.sortDir === 'asc' ? 1 : -1);
       });
     }
 
     this.filteredTotal = items.length;
-   this.totalPages = Math.max(1, Math.ceil(items.length / this.rowsPerPage));
+
+    this.totalPages = Math.max(1, Math.ceil(items.length / this.rowsPerPage));
     if (this.page >= this.totalPages) this.page = this.totalPages - 1;
+
     const start = this.page * this.rowsPerPage;
     this.pagedExpenses = items.slice(start, start + this.rowsPerPage);
+
     this.saveUIState();
   }
 
@@ -127,6 +163,7 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
       this.applyFiltersAndPaging();
     }
   }
+
   nextPage() {
     if (this.page < this.totalPages - 1) {
       this.page++;
@@ -169,8 +206,9 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
   deleteExpense(id: number) {
     if (!confirm('Delete?')) return;
     this.store.dispatch(deleteExpense({ id }));
-    }
- saveUIState() {
+  }
+
+  saveUIState() {
     const ui = {
       page: this.page,
       pageSize: this.rowsPerPage,

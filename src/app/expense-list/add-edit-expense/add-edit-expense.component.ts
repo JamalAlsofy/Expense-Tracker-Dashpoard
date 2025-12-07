@@ -8,7 +8,7 @@ import { AppState } from '../../store/app.state';
 import {
   addExpense,
   updateExpense,
-} from '../../store/expense.actions';
+} from '../expense.actions';
 import { ImportsModule } from 'src/app/imports';
 
 @Component({

@@ -1,7 +1,6 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Dashboard } from './dashboard/dashboard';
 
 const routes: Routes = [
 
@@ -11,7 +10,7 @@ const routes: Routes = [
         loadComponent: () => import('./expense-list/expense-list.component').then(m => m.ExpenseListComponent),
       },
    {
-        path: 'dashboard',
+        path: '',
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
  

@@ -1,7 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
-import * as ExpenseActions from '../expense-list/expense.actions';
-import { Expense } from '@domain/models/expense';
-
+import * as ExpenseActions from './expense.actions'
+import { Expense } from './expense.types';
 
 export interface ExpensesState {
 expenses: Expense[];

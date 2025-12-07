@@ -1,36 +1,29 @@
-// import { Component } from '@angular/core';
+import { loadExpensesSuccess } from './../expense-list/expense.actions';
 
-// @Component({
-//   selector: 'app-dashboard',
-//   standalone: true,
-//   imports: [],
-//   templateUrl: './dashboard.component.html',
-//   styleUrl: './dashboard.component.scss'
-// })
-// export class DashboardComponent {
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
-import { expenseService } from '@service/expenseservice';
-import { Expenses } from '@domain/models/expense';
+import { ExpenseService } from '../expense-list/expense-data.service';
+import { Expense } from '@domain/models/expense';
 import { ImportsModule } from '../imports';
 import { TopbarComponent } from '../topbar/topbar.component';
+import { Store } from '@ngrx/store';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [ImportsModule,TopbarComponent],
-  providers:[expenseService],
+  imports: [ImportsModule],
+  providers:[ExpenseService],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
 
-  private expenseSrv = inject(expenseService);
-
-  expenses = signal<Expenses[]>([]);
+  private expenseSrv = inject(ExpenseService);
+  private store: Store = inject(Store);
+  expenses = signal<Expense[]>([]);
   latestFive = computed(() =>
     [...this.expenses()].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5)
   );
@@ -57,10 +50,11 @@ export class DashboardComponent implements OnInit {
   monthlyChart: any;
 
   ngOnInit(): void {
-    this.expenseSrv.expenses.subscribe(data => {
+    this.expenseSrv.loadMock().subscribe(data => {
+      this.store.dispatch(loadExpensesSuccess({ expense: data }));
       this.expenses.set(data);
-      this.renderCharts();
     });
+   
   }
 
   renderCharts() {
@@ -113,6 +107,12 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+  isDark() {
+    /********* */
+  }
+  changeLang() { }
+  toggleTheme() { }
+  currentLang(){}
 }
 
 

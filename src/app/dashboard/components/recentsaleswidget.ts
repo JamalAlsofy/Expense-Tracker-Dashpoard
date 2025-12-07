@@ -4,8 +4,9 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 
-import { expenseService } from '@service/expenseservice';
-import { Expenses } from '@domain/models/expense';
+
+import { Expense } from '@domain/models/expense';
+import { ExpenseService } from 'src/app/expense-list/expense-data.service';
 
 @Component({
     standalone: true,
@@ -36,17 +37,20 @@ import { Expenses } from '@domain/models/expense';
             </ng-template>
         </p-table>
     </div>`,
-    providers: [expenseService]
+    providers: [ExpenseService]
 })
 export class RecentSalesWidget {
-    expenses: Expenses[]=[];
+    expenses: Expense[]=[];
 
-    constructor(private expensesService: expenseService) {}
+    constructor(private expensesService: ExpenseService) {}
 
     ngOnInit() {
-          this.expensesService.expenses.subscribe(list => {
-      this.expenses = [...list];
-      //this.applyFilters();
-    });
+    //       this.expensesService.expense.subscribe(list => {
+    //   this.expenses = [...list];
+    //   //this.applyFilters();
+        //       });
+        
+              
+        
     }
 }

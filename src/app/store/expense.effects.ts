@@ -1,11 +1,11 @@
 
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import * as ExpenseActions from './expense.actions';
+import * as ExpenseActions from '../expense-list/expense.actions';
 import { ExpenseService } from '@service/expenseservice';
 import { commonService } from '@service/commonservice';
 import { catchError, map, mergeMap, of, tap } from 'rxjs';
-import { loadExpenses } from './expense.actions';
+import { loadExpenses } from '../expense-list/expense.actions';
 
 
 @Injectable()
