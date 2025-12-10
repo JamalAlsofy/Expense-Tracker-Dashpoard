@@ -29,8 +29,8 @@ export class ExpenseListComponent implements OnInit, OnDestroy {
   expenses$ = this.store.select(selectAllExpenses);
   
 
-  allExpenses: any[] = [];
-  pagedExpenses: any[] = [];
+  allExpenses: Expense[] = [];
+  pagedExpenses: Expense[] = [];
   filteredTotal = 0;
 
   categories = [
